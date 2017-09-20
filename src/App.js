@@ -17,7 +17,7 @@ class BooksApp extends React.Component {
   render() {
     return (
       <div className="app">
-        <Route exact path="/search" render={() => (
+        <Route path="/search" render={() => (
           <div className="search-books">
             <div className="search-books-bar">
               <a className="close-search" onClick={() => this.setState({ showSearchPage: false })}>Close</a>
@@ -39,7 +39,7 @@ class BooksApp extends React.Component {
             </div>
           </div>
         )}/>
-        <Route path="/" render={() => (
+        <Route exact path="/" render={() => (
           <div className="list-books">
             <div className="list-books-title">
               <h1>MyReads</h1>
