@@ -1,6 +1,6 @@
 import React from 'react'
 import { Link, Route } from 'react-router-dom'
-//import * as BooksAPI from './BooksAPI'
+import * as BooksAPI from './BooksAPI'
 import './App.css'
 
 class BookView extends React.Component {
@@ -12,7 +12,7 @@ class BookView extends React.Component {
       <li>
         <div className="book">
           <div className="book-top">
-            <div className="book-cover" style={{ width: 128, height: 193, backgroundImage: `url(${book.bkgImage})` }}>></div>
+            <div className="book-cover" style={{ width: 128, height: 193, backgroundImage: `url(${book.imageLinks.thumbnail})` }}>></div>
             <div className="book-shelf-changer">
               <select>
                 <option value="none" disabled>Move to...</option>
@@ -42,13 +42,16 @@ class BooksApp extends React.Component {
   } */
 
   // status = want to read, read, etc
-  state = {
-    currentlyReading: [],
-    wantToRead: [],
-    read: []
+  constructor(props) {
+    super(props)
+    this.state = {
+      currentlyReading: [],
+      wantToRead: [],
+      read: []
+    }
   }
 
-  bookVals = [
+  /*bookVals = [
     {
       title: "To Kill a Mockingbird",
       authors: "Harper Lee",
@@ -92,14 +95,24 @@ class BooksApp extends React.Component {
       shelf: "read"
     }
   
-  ]
+    ]*/
 
   componentDidMount() {
+    BooksAPI.getAll().then((books) =>
+    this.setState(
+      { bookVals: books }
+    )).then(() => (
+      this.updateBookCategories()
+    ))
+  }
+
+  updateBookCategories() {
     this.setState((state) => ({
-      wantToRead: this.bookVals.filter((book) => "wantToRead" === book.shelf),
-      currentlyReading: this.bookVals.filter((book) =>
+      wantToRead: this.state.bookVals.filter(
+        (book) => "wantToRead" === book.shelf),
+      currentlyReading: this.state.bookVals.filter((book) =>
         "currentlyReading" === book.shelf),
-      read: this.bookVals.filter((book) => "read" === book.shelf)
+      read: this.state.bookVals.filter((book) => "read" === book.shelf)
     }))
   }
 
@@ -146,7 +159,7 @@ class BooksApp extends React.Component {
                         { this.state.currentlyReading.map((book) => (
                             <BookView
                               book={book}
-                              key={book.title}
+                              key={book.id}
                             />
                         ))}
                     </ol>
@@ -159,7 +172,7 @@ class BooksApp extends React.Component {
                         { this.state.wantToRead.map((book) => (
                             <BookView
                               book={book}
-                              key={book.title}
+                              key={book.id}
                             />
                         ))}
                     </ol>
@@ -172,7 +185,7 @@ class BooksApp extends React.Component {
                         { this.state.read.map((book) => (
                             <BookView
                               book={book}
-                              key={book.title}
+                              key={book.id}
                             />
                         ))}
                     </ol>
