@@ -40,7 +40,8 @@ class BooksApp extends React.Component {
       currentlyReading: [],
       wantToRead: [],
       read: [],
-      query: ""
+      query: "",
+      searchResults: []
     }
   }
 
@@ -67,14 +68,27 @@ class BooksApp extends React.Component {
     console.log("got your click")
   }
 
+  doSearch() {
+    BooksAPI.search(this.state.query, 20)
+    .then((books) =>
+      this.setState({
+        searchResults: books
+      })
+    ).catch(() =>
+      this.setState({
+        searchResults: []
+      })
+    )
+  }
+
   updateQuery(query) {
-    this.setState({ query: query })
+    this.setState({ query: query }, this.doSearch)
   }
 
   render() {
     return (
       <div className="app">
-        <Route path="/search" render={() => (
+        <Route exact path="/search" render={() => (
           <div className="search-books">
             <div className="search-books-bar">
               <Link className="close-search" to="/">Close</Link>
@@ -97,7 +111,14 @@ class BooksApp extends React.Component {
               </div>
             </div>
             <div className="search-books-results">
-              <ol className="books-grid"></ol>
+              <ol className="books-grid">
+                { this.state.searchResults.map((book) => (
+                    <BookView
+                      book={book}
+                      key={book.id}
+                    />
+                ))}
+              </ol>
             </div>
           </div>
         )}/>
