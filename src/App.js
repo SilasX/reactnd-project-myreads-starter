@@ -18,7 +18,15 @@ class BookView extends React.Component {
     const newValue = event.target.value
     // local update
     this.setState({value: newValue})
-    BooksAPI.update(this.props.book, newValue)
+    .then(
+      this.props.moveHandler(
+        this.props.book.id,
+        this.props.book.shelf,
+        newValue
+    ))
+    .then(
+      BooksAPI.update(this.props.book, newValue)
+    )
   }
 
   render() {
@@ -58,6 +66,7 @@ class BooksApp extends React.Component {
       query: "",
       searchResults: []
     }
+    this.moveHandler = this.moveHandler.bind(this)
   }
 
   componentDidMount() {
@@ -70,13 +79,53 @@ class BooksApp extends React.Component {
   }
 
   updateBookCategories() {
-    this.setState((state) => ({
+    return this.setState((state) => ({
       wantToRead: this.state.bookVals.filter(
         (book) => "wantToRead" === book.shelf),
       currentlyReading: this.state.bookVals.filter((book) =>
         "currentlyReading" === book.shelf),
       read: this.state.bookVals.filter((book) => "read" === book.shelf)
     }))
+  }
+
+  moveHandler(book_id, oldCategory, newCategory) {
+    this.setState(
+      (prevState, state) => {return {
+        bookVals: prevState.bookVals.map((book) =>
+          (book.id === book_id) ? {...book, shelf: newCategory}
+          : {...book}
+        )
+      }},
+      this.updateBookCategories
+    )
+      /*// assume that the book is in the oldCategory
+    console.log(this.state)
+    console.log(book_id)
+    console.log(oldCategory)
+    const matches = this.state[oldCategory].filter(
+      (book) => book.id === book_id
+    )
+    // Just exit if no match
+    if (matches.length === 0) {
+      return
+    }
+    const movingBook = matches[0]
+    // Create list for the new cateogry: everything there, plus
+    // book to be moved
+    const newCateogryList = this.state[newCategory].concat([movingBook])
+    // Create list for the old cateogry: everything there, minus
+    // book to be moved
+    const oldCategoryList = this.state.filter( (book) =>
+      book.id !== book_id
+    )
+    // Set those lists in place of the current state:
+    const newState = {}
+    newState[newCategory] = newCateogryList
+    newState[oldCategory] = oldCategoryList
+    console.log(newState)
+    return this.setState((state) => newState)*/
+
+
   }
 
   testHandle() {
@@ -152,6 +201,7 @@ class BooksApp extends React.Component {
                             <BookView
                               book={book}
                               key={book.id}
+                              moveHandler={this.moveHandler}
                             />
                         ))}
                     </ol>
@@ -165,6 +215,7 @@ class BooksApp extends React.Component {
                             <BookView
                               book={book}
                               key={book.id}
+                              moveHandler={this.moveHandler}
                             />
                         ))}
                     </ol>
@@ -178,6 +229,7 @@ class BooksApp extends React.Component {
                             <BookView
                               book={book}
                               key={book.id}
+                              moveHandler={this.moveHandler}
                             />
                         ))}
                     </ol>
