@@ -18,15 +18,13 @@ class BookView extends React.Component {
     const newValue = event.target.value
     // local update
     this.setState({value: newValue})
-    .then(
-      this.props.moveHandler(
-        this.props.book.id,
-        this.props.book.shelf,
-        newValue
-    ))
-    .then(
-      BooksAPI.update(this.props.book, newValue)
-    )
+    //.then(
+    this.props.moveHandler(
+      this.props.book.id,
+      this.props.book.shelf,
+      newValue)
+    //))
+    BooksAPI.update(this.props.book, newValue)
   }
 
   render() {
