@@ -65,6 +65,7 @@ class BooksApp extends React.Component {
       searchResults: []
     }
     this.moveHandler = this.moveHandler.bind(this)
+    this.updateSearchResults = this.updateSearchResults.bind(this)
   }
 
   componentDidMount() {
@@ -135,7 +136,7 @@ class BooksApp extends React.Component {
     .then((books) =>
       this.setState({
         searchResults: books
-      })
+      }, this.updateSearchResults)
     ).catch(() =>
       this.setState({
         searchResults: []
@@ -145,6 +146,28 @@ class BooksApp extends React.Component {
 
   updateQuery(query) {
     this.setState({ query: query }, this.doSearch)
+  }
+
+  updateSearchResults() {
+    console.log(this.state.searchResults)
+    this.setState( (prevState) => {
+      searchResults: prevState.searchResults.map( (searchResult) => {
+        // get the occurrences of the book in this.bookVals
+        const matches = prevState.bookVals.filter((book) => 
+          searchResult.id === book.id)
+        // if it's in the list, use that category, otherwise, use what
+        // leave it unchanged
+        if (matches.length === 0) {
+          console.log(searchResult.id + "had no match")
+          console.log({...searchResult, shelf: "none"})
+          return {...searchResult, shelf: "none"}
+        } else {
+          console.log(searchResult.id + "had no a match")
+          console.log({...searchResult, shelf: matches[0].shelf})
+          return {...searchResult, shelf: matches[0].shelf}
+        }
+      })
+    })
   }
 
   render() {
