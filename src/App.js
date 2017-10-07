@@ -26,7 +26,7 @@ class BookView extends React.Component {
     this.setState({value: newValue})
     //.then(
     this.props.moveHandler(
-      this.props.book.id,
+      this.props.book,
       this.props.book.shelf,
       newValue)
     //))
@@ -84,23 +84,36 @@ class BooksApp extends React.Component {
   }
 
   updateBookCategories() {
-    return this.setState((state) => ({
-      wantToRead: this.state.bookVals.filter(
+    this.setState((state) => ({
+      wantToRead: state.bookVals.filter(
         (book) => "wantToRead" === book.shelf),
-      currentlyReading: this.state.bookVals.filter((book) =>
+      currentlyReading: state.bookVals.filter((book) =>
         "currentlyReading" === book.shelf),
-      read: this.state.bookVals.filter((book) => "read" === book.shelf)
+      read: state.bookVals.filter((book) => "read" === book.shelf)
     }))
   }
 
-  moveHandler(book_id, oldCategory, newCategory) {
+  moveHandler(changed_book, oldCategory, newCategory) {
     this.setState(
-      (prevState, state) => {return {
-        bookVals: prevState.bookVals.map((book) =>
-          (book.id === book_id) ? {...book, shelf: newCategory}
-          : {...book}
-        )
-      }},
+      (prevState, state) => {
+        // If it's not in our bookVals list, just append it on
+        if (oldCategory === "none") {
+          return {
+            bookVals: prevState.bookVals.concat([{
+              ...changed_book, shelf: newCategory
+            }])
+          }
+        } else {
+          // Otherwise find the book by its id and map it over to one with
+          // the new value of shelf
+          return {
+            bookVals: prevState.bookVals.map((book) =>
+              (book.id === changed_book.id) ? {...book, shelf: newCategory}
+              : {...book}
+            )
+          }
+        }
+      },
       this.updateBookCategories
     )
   }
