@@ -36,7 +36,7 @@ class BookView extends React.Component {
             <div className="book-cover" style={{ width: 128, height: 193, backgroundImage: `url(${book.imageLinks.thumbnail})` }}>></div>
             <div className="book-shelf-changer">
               <select value={this.state.value} onChange={this.handleChange}>
-                <option value="none" disabled>Move to...</option>
+                <option value="placeholder" disabled>Move to...</option>
                 <option value="currentlyReading">Currently Reading</option>
                 <option value="wantToRead">Want to Read</option>
                 <option value="read">Read</option>
@@ -65,7 +65,7 @@ class BooksApp extends React.Component {
       searchResults: []
     }
     this.moveHandler = this.moveHandler.bind(this)
-    this.updateSearchResults = this.updateSearchResults.bind(this)
+    //this.updateSearchResults = this.updateSearchResults.bind(this)
   }
 
   componentDidMount() {
@@ -97,77 +97,30 @@ class BooksApp extends React.Component {
       }},
       this.updateBookCategories
     )
-      /*// assume that the book is in the oldCategory
-    console.log(this.state)
-    console.log(book_id)
-    console.log(oldCategory)
-    const matches = this.state[oldCategory].filter(
-      (book) => book.id === book_id
-    )
-    // Just exit if no match
-    if (matches.length === 0) {
-      return
-    }
-    const movingBook = matches[0]
-    // Create list for the new cateogry: everything there, plus
-    // book to be moved
-    const newCateogryList = this.state[newCategory].concat([movingBook])
-    // Create list for the old cateogry: everything there, minus
-    // book to be moved
-    const oldCategoryList = this.state.filter( (book) =>
-      book.id !== book_id
-    )
-    // Set those lists in place of the current state:
-    const newState = {}
-    newState[newCategory] = newCateogryList
-    newState[oldCategory] = oldCategoryList
-    console.log(newState)
-    return this.setState((state) => newState)*/
-
-
-  }
-
-  testHandle() {
-    console.log("got your click")
   }
 
   doSearch() {
     BooksAPI.search(this.state.query, 20)
     .then((books) =>
-      this.setState({
-        searchResults: books
-      }, this.updateSearchResults)
-    ).catch(() =>
-      this.setState({
-        searchResults: []
-      })
+      this.setState( (prevState) => ({
+        searchResults: books.map( (book) => {
+          // get the occurrences of the book in this.bookVals
+          const matches = prevState.bookVals.filter((bookVal) => 
+            book.id === bookVal.id)
+          // if it's in the list, use that category, otherwise, use what
+          // leave it unchanged
+          if (matches.length === 0) {
+            return {...book, shelf: "none"}
+          } else {
+            return {...book, shelf: matches[0].shelf}
+          }
+        })
+      }))
     )
   }
 
   updateQuery(query) {
     this.setState({ query: query }, this.doSearch)
-  }
-
-  updateSearchResults() {
-    console.log(this.state.searchResults)
-    this.setState( (prevState) => {
-      searchResults: prevState.searchResults.map( (searchResult) => {
-        // get the occurrences of the book in this.bookVals
-        const matches = prevState.bookVals.filter((book) => 
-          searchResult.id === book.id)
-        // if it's in the list, use that category, otherwise, use what
-        // leave it unchanged
-        if (matches.length === 0) {
-          console.log(searchResult.id + "had no match")
-          console.log({...searchResult, shelf: "none"})
-          return {...searchResult, shelf: "none"}
-        } else {
-          console.log(searchResult.id + "had no a match")
-          console.log({...searchResult, shelf: matches[0].shelf})
-          return {...searchResult, shelf: matches[0].shelf}
-        }
-      })
-    })
   }
 
   render() {
