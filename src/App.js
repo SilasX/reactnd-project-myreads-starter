@@ -7,8 +7,14 @@ class BookView extends React.Component {
 
   constructor(props) {
     super(props)
+        //var thumbnail = props.book.imageLinks.thumbnail
+    var thumbnail = "/favicon.ico"  // default thumbnail value
+    if (typeof props.book.imageLinks !== "undefined") {
+        thumbnail = props.book.imageLinks.thumbnail
+    }
     this.state = {
-      value: this.props.book.shelf
+      value: this.props.book.shelf,
+      thumbnail: thumbnail
     }
     this.handleChange = this.handleChange.bind(this)
   }
@@ -33,7 +39,7 @@ class BookView extends React.Component {
       <li>
         <div className="book">
           <div className="book-top">
-            <div className="book-cover" style={{ width: 128, height: 193, backgroundImage: `url(${book.imageLinks.thumbnail})` }}>></div>
+              <div className="book-cover" style={{ width: 128, height: 193, backgroundImage: `url(${this.state.thumbnail})` }}>></div>
             <div className="book-shelf-changer">
               <select value={this.state.value} onChange={this.handleChange}>
                 <option value="placeholder" disabled>Move to...</option>
@@ -116,7 +122,7 @@ class BooksApp extends React.Component {
           }
         })
       }))
-    )
+    ).catch(() => this.setState({}))
   }
 
   updateQuery(query) {
@@ -154,6 +160,7 @@ class BooksApp extends React.Component {
                     <BookView
                       book={book}
                       key={book.id}
+                      moveHandler={this.moveHandler}
                     />
                 ))}
               </ol>
