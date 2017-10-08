@@ -20,7 +20,6 @@ class BookView extends React.Component {
   }
 
   handleChange(event) {
-    //const oldValue = this.state.value
     const newValue = event.target.value
     // local update
     this.setState({value: newValue})
@@ -90,7 +89,9 @@ class BooksApp extends React.Component {
       currentlyReading: state.bookVals.filter((book) =>
         "currentlyReading" === book.shelf),
       read: state.bookVals.filter((book) => "read" === book.shelf)
-    }))
+      }),
+      this.updateSearchResults
+    )
   }
 
   moveHandler(changed_book, oldCategory, newCategory) {
@@ -114,7 +115,20 @@ class BooksApp extends React.Component {
           }
         }
       },
-      this.updateBookCategories
+      () => this.setState( (prevState) => ({
+        searchResults: prevState.searchResults.map( (searchResult) => {
+          // get the occurrences of the book in this.bookVals
+          const matches = prevState.bookVals.filter((bookVal) =>
+            searchResult.id === bookVal.id)
+          // if it's in the list, use that category, otherwise
+          // leave it unchanged
+          if (matches.length === 0) {
+            return {...searchResult, shelf: "none"}
+          } else {
+            return {...searchResult, shelf: matches[0].shelf}
+          }
+        })
+      }), this.updateBookCategories)
     )
   }
 
@@ -126,7 +140,7 @@ class BooksApp extends React.Component {
           // get the occurrences of the book in this.bookVals
           const matches = prevState.bookVals.filter((bookVal) => 
             book.id === bookVal.id)
-          // if it's in the list, use that category, otherwise, use what
+          // if it's in the list, use that category, otherwise
           // leave it unchanged
           if (matches.length === 0) {
             return {...book, shelf: "none"}
