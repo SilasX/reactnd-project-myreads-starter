@@ -7,7 +7,6 @@ class BookView extends React.Component {
 
   constructor(props) {
     super(props)
-        //var thumbnail = props.book.imageLinks.thumbnail
     var thumbnail = "/favicon.ico"  // default thumbnail value
     if (typeof props.book.imageLinks !== "undefined") {
         thumbnail = props.book.imageLinks.thumbnail
@@ -22,13 +21,14 @@ class BookView extends React.Component {
   handleChange(event) {
     const newValue = event.target.value
     // local update
-    this.setState({value: newValue})
-    //.then(
-    this.props.moveHandler(
-      this.props.book,
-      this.props.book.shelf,
-      newValue)
-    //))
+    this.setState({value: newValue}, () =>
+      // Then trigger the category mover on the main screen
+      this.props.moveHandler(
+        this.props.book,
+        this.props.book.shelf,
+        newValue
+      )
+    )
     BooksAPI.update(this.props.book, newValue)
   }
 
