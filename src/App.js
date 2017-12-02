@@ -18,7 +18,6 @@ class BooksApp extends React.Component {
       searchResults: []
     }
     this.moveHandler = this.moveHandler.bind(this)
-    //this.updateSearchResults = this.updateSearchResults.bind(this)
   }
 
   componentDidMount() {
@@ -31,6 +30,11 @@ class BooksApp extends React.Component {
   }
 
   updateBookCategories() {
+    /**
+    * @description from the master state.bookVals list, populates the
+    * different categories based on what their .shelf properies say
+    * they should be
+    */
     this.setState((state) => ({
       wantToRead: state.bookVals.filter(
         (book) => "wantToRead" === book.shelf),
@@ -42,28 +46,41 @@ class BooksApp extends React.Component {
     )
   }
 
-  moveHandler(changed_book, oldCategory, newCategory) {
+  moveHandler(changedBook, oldCategory, newCategory) {
+    /**
+    * @description General handler for moving a book from one category
+    * to another: it adds the book to the .bookVals list or updates
+    * its .shelf in that list, propagates the results over to the search
+    * state, and then calls updateBookCategories() to make the books
+    * appear in their relevant categories.
+    * @param {book} changedBook - Book object to be recategorized
+    * @param {string} oldCategory - Previous category book was in
+    * @param {string} newCategory - New category book should be moved
+    *   into
+    */
     this.setState(
       (prevState, state) => {
         // If it's not in our bookVals list, just append it on
         if (oldCategory === "none") {
           return {
             bookVals: prevState.bookVals.concat([{
-              ...changed_book, shelf: newCategory
+              ...changedBook, shelf: newCategory
             }])
           }
         } else {
-          // Otherwise find the book by its id and map it over to one with
-          // the new value of shelf
+          // Otherwise map over the .bookVals and replace the book
+          // with one whose .shelf has the new category
           return {
             bookVals: prevState.bookVals.map((book) =>
-              (book.id === changed_book.id) ? {...book, shelf: newCategory}
-              : {...book}
+              (book.id === changedBook.id)
+                ? {...book, shelf: newCategory}
+                : {...book}
             )
           }
         }
       },
       () => this.setState( (prevState) => ({
+        // Propagate changes to search results
         searchResults: prevState.searchResults.map( (searchResult) => {
           // get the occurrences of the book in this.bookVals
           const matches = prevState.bookVals.filter((bookVal) =>
@@ -116,21 +133,12 @@ class BooksApp extends React.Component {
             <div className="search-books-bar">
               <Link className="close-search" to="/">Close</Link>
               <div className="search-books-input-wrapper">
-                {/*
-                  NOTES: The search from BooksAPI is limited to a particular set of search terms.
-                  You can find these search terms here:
-                  https://github.com/udacity/reactnd-project-myreads-starter/blob/master/SEARCH_TERMS.md
-
-                  However, remember that the BooksAPI.search method DOES search by title or author. So, don't worry if
-                  you don't find a specific author or title. Every search is limited by search terms.
-                */}
                 <input
                   type="text"
                   placeholder="Search by title or author"
                   value={this.state.query}
                   onChange={(event) => this.updateQuery(event.target.value)}
                 />
-
               </div>
             </div>
             <div className="search-books-results">
