@@ -82,7 +82,11 @@ class BooksApp extends React.Component {
 
   doSearch() {
     BooksAPI.search(this.state.query, 20)
-    .then((books) =>
+    .then((books) => {
+      // Do nothing if search returns an error
+      if (books.hasOwnProperty('error')) {
+        return
+      }
       this.setState( (prevState) => ({
         searchResults: books.map( (book) => {
           // get the occurrences of the book in this.bookVals
@@ -97,7 +101,7 @@ class BooksApp extends React.Component {
           }
         })
       }))
-    ).catch(() => this.setState({}))
+    })
   }
 
   updateQuery(query) {
